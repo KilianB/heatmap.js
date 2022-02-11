@@ -11,22 +11,13 @@ Dynamic Heatmaps for the Web.
 
 ## How to get started
 
-The fastest way to get started is to install heatmap.js with bower. Just run the following command:
-
-`bower install @mars3d/heatmap.js-amd`
-
-This will download the latest working version of heatmap.js and put it in your bower_components folder.
-
-Alternatively you could just download [the latest release](https://github.com/pa7/heatmap.js/releases) from github and unzip it.
-
-
 The file you're ultimately looking for is **heatmap.js** or **heatmap.min.js**
 
 
 
 heatmap.js is also hosted on npm:
 
-`npm install @mars3d/heatmap.js`
+`npm install --save https://github.com/KilianB/heatmap.js/tarball/master`
 
 
 
