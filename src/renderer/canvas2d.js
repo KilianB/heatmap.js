@@ -101,7 +101,7 @@ var Canvas2dRenderer = (function Canvas2dRendererClosure() {
 
     canvas.style.cssText = shadowCanvas.style.cssText = 'position:absolute;left:0;top:0;';
 
-    container.style.position = config.defaultPosition;
+    container.style.position = (config.containerPosition || config.defaultPosition);
     container.appendChild(canvas);
 
     this._palette = _getColorPalette(config);

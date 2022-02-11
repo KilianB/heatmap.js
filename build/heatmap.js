@@ -1,10 +1,10 @@
 /*
- * @kilianB/heatmap.js v2.0.6 | JavaScript Heatmap Library
+ * @kilianB/heatmap.js v2.0.7 | JavaScript Heatmap Library
  *
  * Copyright 2008-2016 Patrick Wied <heatmapjs@patrick-wied.at> - All rights reserved.
  * Dual licensed under MIT and Beerware license 
  *
- * :: 2022-02-11 21:31
+ * :: 2022-02-11 21:35
  */
 ;(function (name, context, factory) {
 
@@ -349,7 +349,7 @@ var Canvas2dRenderer = (function Canvas2dRendererClosure() {
 
     canvas.style.cssText = shadowCanvas.style.cssText = 'position:absolute;left:0;top:0;';
 
-    container.style.position = config.defaultPosition;
+    container.style.position = (config.containerPosition || config.defaultPosition);
     container.appendChild(canvas);
 
     this._palette = _getColorPalette(config);
