@@ -275,6 +275,12 @@ export interface HeatmapConfiguration<
     container: HTMLElement;
 
     /**
+     * Override the css position style which will be added to the container element.
+     * Default value: 'relative' 
+     */
+    containerPosition?: CssPosition
+
+    /**
      * The property name of your x coordinate in a datapoint
      * Default value: 'x'
      */
@@ -346,3 +352,8 @@ export interface HeatmapData<T> {
      */
     min: number;
 }
+
+/**
+ * CSS Properties allowed for the position argument.
+ */
+export type CssPosition =   "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "-webkit-sticky" | "absolute" | "fixed" | "relative" | "static" | "sticky";

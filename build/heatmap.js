@@ -1,10 +1,10 @@
 /*
- * heatmap.js v2.0.5 | JavaScript Heatmap Library
+ * @kilianB/heatmap.js v2.0.6 | JavaScript Heatmap Library
  *
  * Copyright 2008-2016 Patrick Wied <heatmapjs@patrick-wied.at> - All rights reserved.
  * Dual licensed under MIT and Beerware license 
  *
- * :: 2016-09-05 01:16
+ * :: 2022-02-11 21:22
  */
 ;(function (name, context, factory) {
 
@@ -21,6 +21,7 @@
 
 // Heatmap Config stores default values and will be merged with instance config
 var HeatmapConfig = {
+  defaultPosition: 'relative',
   defaultRadius: 40,
   defaultRenderer: 'canvas2d',
   defaultGradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
@@ -348,7 +349,7 @@ var Canvas2dRenderer = (function Canvas2dRendererClosure() {
 
     canvas.style.cssText = shadowCanvas.style.cssText = 'position:absolute;left:0;top:0;';
 
-    container.style.position = 'relative';
+    container.style.position = config.defaultPosition;
     container.appendChild(canvas);
 
     this._palette = _getColorPalette(config);
@@ -524,6 +525,7 @@ var Canvas2dRenderer = (function Canvas2dRendererClosure() {
 
       }
 
+      // img.data = imgData;
       this.ctx.putImageData(img, x, y);
 
       this._renderBoundaries = [1000, 1000, 0, 0];
