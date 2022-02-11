@@ -14,7 +14,21 @@
   },
   "files": [
     "build",
-    "index.d.ts"
+    "index.d.ts",
+    "plugins",
+    "examples",
+    "docs",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "buildFiles": [
+    "src/config.js",
+    "src/data.js",
+    "src/renderer/canvas2d.js",
+    "src/renderer.js",
+    "src/util.js",
+    "src/core.js"
   ],
   "keywords": [
     "heatmap",
@@ -43,7 +57,6 @@
       "email": "kilian@brachtendorf.dev"
     }
   ],
-  
   "license": "ISC",
   "homepage": "https://github.com/KilianB/heatmap.js"
 }
