@@ -124,16 +124,24 @@ var Store = (function StoreClosure() {
       var dataPoints = data.data;
       var pointsLen = dataPoints.length;
 
-
       // reset data arrays
       this._data = [];
       this._radi = [];
 
+      if(data.calculateExtrema){     
+        this._max = typeof data.max === 'number' ? data.max : Number.MIN_VALUE;
+        this._min = typeof data.min === 'number' ? data.min : Number.MAX_VALUE;
+      }
+
       for(var i = 0; i < pointsLen; i++) {
         this._organiseData(dataPoints[i], false);
       }
-      this._max = data.max;
-      this._min = data.min || 0;
+
+      //Original behaviour. Override values by supplied data
+      if(!data.calculateExtrema){
+        this._max = data.max;
+        this._min = data.min || 0;
+      }
       
       this._onExtremaChange();
       this._coordinator.emit('renderall', this._getInternalData());

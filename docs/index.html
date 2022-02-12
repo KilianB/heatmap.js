@@ -152,7 +152,21 @@ heatmapInstance.addData(dataPoints);</code></pre>
     dataPoint, dataPoint, dataPoint, dataPoint
   ]
 };
-heatmapInstance.setData(data);</code></pre>
+heatmapInstance.setData(data);
+
+//or to automatically calculate min and max
+//in this case min and max are optional and will be overridden if a higher/lower value 
+//in the data is found.
+
+const data = {
+  calculateExtrema: true,
+  min: 0,
+  data: [
+    dataPoint, dataPoint, dataPoint, dataPoint
+  ]
+}
+
+</code></pre>
             </div>
           </div>
           <div class="fn">

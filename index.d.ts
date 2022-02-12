@@ -97,7 +97,7 @@ export class Heatmap<V extends string, X extends string, Y extends string> {
      * };
      * heatmapInstance.setData(data);
      */
-    setData(data: HeatmapData<DataPoint<V, X, Y>>): this;
+    setData(data: HeatmapData<DataPoint<V, X, Y>> | HeatmapSetData<V,X,Y>): this;
 
     /**
      * Changes the upper bound of your dataset and triggers a complete
@@ -351,6 +351,36 @@ export interface HeatmapData<T> {
      * Min value of the valueField
      */
     min: number;
+}
+
+export interface HeatmapSetData<T>{
+
+    /**
+     * An array of data points
+     */
+     data: ReadonlyArray<T>;
+
+     /**
+      * Calculate the min and max based on the provided data set
+      */
+     calculateExtrema: true;
+
+     /**
+     * Upper bound used to draw the range of the gradient. If given
+     * this  value will only be used if it is higher than the value of all passed
+     * data point.
+     */
+     max?: number;
+
+    /**
+     * Lower bound used to draw the range of the gradient. If given
+     * this value will only be used if it is lower than the value of all passed
+     * data point.
+     */
+     min?: number;
+
+     
+
 }
 
 /**
