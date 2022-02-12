@@ -1,6 +1,7 @@
 
 // Heatmap Config stores default values and will be merged with instance config
 var HeatmapConfig = {
+  defaultUseAdaptiveMaximumCalculation: true,
   defaultPosition: 'relative',
   defaultRadius: 40,
   defaultRenderer: 'canvas2d',
