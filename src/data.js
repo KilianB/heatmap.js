@@ -106,9 +106,7 @@ var Store = (function StoreClosure() {
       } else {
         // add to store  
         var organisedEntry = this._organiseData(arguments[0], true);
-        console.log(organisedEntry);
         if (organisedEntry) {
-          console.log("Oranised add data called with different value")
           // if it's the first datapoint initialize the extremas with it
           if (this._data.length === 0) {
             this._min = this._max = organisedEntry.value;
@@ -135,12 +133,6 @@ var Store = (function StoreClosure() {
         this._min = typeof data.min === 'number' ? data.min : Number.MAX_VALUE;
       }
 
-      console.log("Pre compute");
-      console.log(data);
-      console.log("Max: " + this._max);
-      console.log(this._min);
-      
-
       for(var i = 0; i < pointsLen; i++) {
         this._organiseData(dataPoints[i], false);
       }
@@ -150,10 +142,6 @@ var Store = (function StoreClosure() {
         this._max = data.max;
         this._min = data.min || 0;
       }
-
-      console.log(data.calculateExtrema);
-      console.log(this._min);
-      console.log(this._max);
       
       this._onExtremaChange();
       this._coordinator.emit('renderall', this._getInternalData());
