@@ -21,6 +21,10 @@ heatmap.addData({ x: 600, y: 500, value: 5, radius: 100 });
 //heatmap.addData({ x: 0, y:0, value: 0, radius: 100});
 ```
 
+Additionally there is a visual differenz between initializing the heatmap with a value of 5*X at a given location 
+or adding 5 times 1*X. This discrepancy is only resolved upon creating a full rerender either due to an extrema 
+change or a manual call to repaint.
+
 ### Changes in this fork
 
 `setData` now allows to pass the option `calculateExtrema` which results in
@@ -33,6 +37,22 @@ heatmap.setData({
   min: 0,
 });
 ```
+
+`removeData` was implemented allowing to remove `weight` from a specified location. Heatmap-js creates it's effect by iteratively drawing individual data points on an canvas with a given opacity creating a blending effect for busy areas. New data points are painted on top 
+of the existing canvas resulting in dirty patches before data is rerendered completely. 
+
+Since it is not possible to subtract a gradient from a canvas removeData requires a full redraw in order to have an effect!
+
+````js
+removeData: function (data, redraw = true, adjustExtrema = false, minDeletionThreshold = 0)
+````
+
+|Parameter | Description |
+| --- | --- |
+| data | Data point with `x`, `y`, and value. The value is the amount of weight to remove at the specified location
+| redraw | redraw the entire canvas. If data should be added afterwards redrawing can be postponed by setting the flag to false |
+| adjustExtrema | should min,max be recalculated if the  bucket with an extrema value was modified by the reduction operation? This flag is helpful if the highest current data point should always represent the maximum gradient |
+| minDeletionThreshold | If the remaining value in the location is lower than the given number the data point is considered deleted |
 
 ## mars3d update
 

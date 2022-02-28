@@ -42,12 +42,8 @@ export as namespace h337;
  * };
  * var heatmapInstance = h337.create(config);
  */
-export function create<
-    V extends string = 'value',
-    X extends string = 'x',
-    Y extends string = 'y'
->(
-    configObject: HeatmapConfiguration<V, X, Y>
+export function create<V extends string = 'value', X extends string = 'x', Y extends string = 'y'>(
+  configObject: HeatmapConfiguration<V, X, Y>
 ): Heatmap<V, X, Y>;
 
 export function register(pluginKey: string, plugin: any): void;
@@ -59,256 +55,280 @@ export function register(pluginKey: string, plugin: any): void;
  * whether it's necessary).
  */
 export class Heatmap<V extends string, X extends string, Y extends string> {
-    /**
-     * Use this functionality only for adding datapoints on the fly, not for data
-     * initialization! heatmapInstance.addData adds a single or multiple
-     * datapoints to the heatmap's datastore.
-     *
-     * @example <caption>A single datapoint</caption>
-     *
-     * var dataPoint = {
-     *   x: 5, // x coordinate of the datapoint, a number
-     *   y: 5, // y coordinate of the datapoint, a number
-     *   value: 100 // the value at datapoint(x, y)
-     * };
-     * heatmapInstance.addData(dataPoint);
-     *
-     * @example <caption>multiple datapoints</caption>
-     *
-     * // for data initialization use setData!!
-     * var dataPoints = [dataPoint, dataPoint, dataPoint, dataPoint];
-     * heatmapInstance.addData(dataPoints);
-     */
-    addData(dataPoint: DataPoint<V, X, Y> | ReadonlyArray<DataPoint<V, X, Y>>): this;
+  /**
+   * Use this functionality only for adding datapoints on the fly, not for data
+   * initialization! heatmapInstance.addData adds a single or multiple
+   * datapoints to the heatmap's datastore.
+   *
+   * @example <caption>A single datapoint</caption>
+   *
+   * var dataPoint = {
+   *   x: 5, // x coordinate of the datapoint, a number
+   *   y: 5, // y coordinate of the datapoint, a number
+   *   value: 100 // the value at datapoint(x, y)
+   * };
+   * heatmapInstance.addData(dataPoint);
+   *
+   * @example <caption>multiple datapoints</caption>
+   *
+   * // for data initialization use setData!!
+   * var dataPoints = [dataPoint, dataPoint, dataPoint, dataPoint];
+   * heatmapInstance.addData(dataPoints);
+   */
+  addData(dataPoint: DataPoint<V, X, Y> | ReadonlyArray<DataPoint<V, X, Y>>): this;
 
-    /**
-     * Initialize a heatmap instance with the given dataset. Removes all
-     * previously existing points from the heatmap instance and re-initializes
-     * the datastore.
-     *
-     * @example
-     *
-     * var data = {
-     *   max: 100,
-     *   min: 0,
-     *   data: [
-     *     dataPoint, dataPoint, dataPoint, dataPoint
-     *   ]
-     * };
-     * heatmapInstance.setData(data);
-     */
-    setData(data: HeatmapData<DataPoint<V, X, Y>> | HeatmapSetData<V,X,Y>): this;
+  /**
+   * Remove a data point for the value of a given (x,y) coordinate..
+   *
+   * The addData functionality works by summing up all pixel values for a given coordinate.
+   * Calling this function reduces the value at the given location
+   *
+   * Due to the nature of this library data can not be selectively removed from the canvas. Thus a full rerender is required before
+   * results are shown.
+   *
+   * @example
+   *
+   * var data = [
+   *     dataPoint, dataPoint, dataPoint, dataPoint
+   *   ];
+   * 
+   * heatmapInstance.removeData(data, true);
+   *
+   * @param dataPoint The {x,y} coordinate of the datapoint as well as the value to decrease the cell
+   * @param redraw if true redraws the entire canvas. If false no visual change will happen until the next render. This is useful for batch removal and chaining operations.
+   * @param adjustExtrema If True extremas (min,max) will be recalculated and adjusted to fit the current extremas in the dataset.
+   * @param minDeletionThreshold if the remaining value of the cell is lower than the minDeletionThreshold the datapoint is considered to be removed entirely.
+   */
+  removeData(
+    dataPoint: DataPoint<V, X, Y> | ReadonlyArray<DataPoint<V, X, Y>>,
+    redraw = false,
+    adjustExtrema = false,
+    minDeletionThreshold = 0
+  ): this;
 
-    /**
-     * Changes the upper bound of your dataset and triggers a complete
-     * rerendering.
-     *
-     * @example
-     *
-     * heatmapInstance.setDataMax(200);
-     * // setting the maximum value triggers a complete rerendering of the heatmap
-     * heatmapInstance.setDataMax(100);
-     */
-    setDataMax(number: number): this;
+  /**
+   * Initialize a heatmap instance with the given dataset. Removes all
+   * previously existing points from the heatmap instance and re-initializes
+   * the datastore.
+   *
+   * @example
+   *
+   * var data = {
+   *   max: 100,
+   *   min: 0,
+   *   data: [
+   *     dataPoint, dataPoint, dataPoint, dataPoint
+   *   ]
+   * };
+   * heatmapInstance.setData(data);
+   */
+  setData(data: HeatmapData<DataPoint<V, X, Y>> | HeatmapSetData<V, X, Y>): this;
 
-    /**
-     * Changes the lower bound of your dataset and triggers a complete
-     * rerendering.
-     *
-     * @example
-     *
-     * heatmapInstance.setDataMin(10);
-     * // setting the minimum value triggers a complete rerendering of the heatmap
-     * heatmapInstance.setDataMin(0);
-     */
-    setDataMin(number: number): this;
+  /**
+   * Changes the upper bound of your dataset and triggers a complete
+   * rerendering.
+   *
+   * @example
+   *
+   * heatmapInstance.setDataMax(200);
+   * // setting the maximum value triggers a complete rerendering of the heatmap
+   * heatmapInstance.setDataMax(100);
+   */
+  setDataMax(number: number): this;
 
-    /**
-     * Reconfigures a heatmap instance after it has been initialized. Triggers a
-     * complete rerendering.
-     *
-     * NOTE: This returns a reference to itself, but also offers an opportunity
-     * to change the `xField`, `yField` and `valueField` options, which can
-     * change the type of the `Heatmap` instance.
-     *
-     * @example
-     *
-     * var nuConfig = {
-     *   radius: 10,
-     *   maxOpacity: .5,
-     *   minOpacity: 0,
-     *   blur: .75
-     * };
-     * heatmapInstance.configure(nuConfig);
-     */
-    configure<
-        Vn extends string = V,
-        Xn extends string = X,
-        Yn extends string = Y
-    >(configObject: HeatmapConfiguration<Vn, Xn, Yn>): Heatmap<Vn, Xn, Yn>;
+  /**
+   * Changes the lower bound of your dataset and triggers a complete
+   * rerendering.
+   *
+   * @example
+   *
+   * heatmapInstance.setDataMin(10);
+   * // setting the minimum value triggers a complete rerendering of the heatmap
+   * heatmapInstance.setDataMin(0);
+   */
+  setDataMin(number: number): this;
 
-    /**
-     * Returns value at datapoint position.
-     *
-     * The returned value is an interpolated value based on the gradient blending
-     * if point is not in store.
-     *
-     * @example
-     *
-     * heatmapInstance.addData({ x: 10, y: 10, value: 100});
-     * // get the value at x=10, y=10
-     * heatmapInstance.getValueAt({ x: 10, y: 10 }); // returns 100
-     */
-    getValueAt(point: { x: number, y: number }): number;
+  /**
+   * Reconfigures a heatmap instance after it has been initialized. Triggers a
+   * complete rerendering.
+   *
+   * NOTE: This returns a reference to itself, but also offers an opportunity
+   * to change the `xField`, `yField` and `valueField` options, which can
+   * change the type of the `Heatmap` instance.
+   *
+   * @example
+   *
+   * var nuConfig = {
+   *   radius: 10,
+   *   maxOpacity: .5,
+   *   minOpacity: 0,
+   *   blur: .75
+   * };
+   * heatmapInstance.configure(nuConfig);
+   */
+  configure<Vn extends string = V, Xn extends string = X, Yn extends string = Y>(
+    configObject: HeatmapConfiguration<Vn, Xn, Yn>
+  ): Heatmap<Vn, Xn, Yn>;
 
-    /**
-     * Returns a persistable and reimportable (with setData) JSON object.
-     *
-     * @example
-     *
-     * var currentData = heatmapInstance.getData();
-     * // now let's create a new instance and set the data
-     * var heatmap2 = h337.create(config);
-     * heatmap2.setData(currentData); // now both heatmap instances have the same content
-     */
-    getData(): HeatmapData<DataCircle>;
+  /**
+   * Returns value at datapoint position.
+   *
+   * The returned value is an interpolated value based on the gradient blending
+   * if point is not in store.
+   *
+   * @example
+   *
+   * heatmapInstance.addData({ x: 10, y: 10, value: 100});
+   * // get the value at x=10, y=10
+   * heatmapInstance.getValueAt({ x: 10, y: 10 }); // returns 100
+   */
+  getValueAt(point: { x: number; y: number }): number;
 
-    /**
-     * Returns dataURL string.
-     *
-     * The returned value is the base64 encoded dataURL of the heatmap instance.
-     *
-     * @example
-     *
-     * heatmapInstance.getDataURL(); // data:image/png;base64...
-     * // ready for saving locally or on the server
-     */
-    getDataURL(): string;
+  /**
+   * Returns a persistable and reimportable (with setData) JSON object.
+   *
+   * @example
+   *
+   * var currentData = heatmapInstance.getData();
+   * // now let's create a new instance and set the data
+   * var heatmap2 = h337.create(config);
+   * heatmap2.setData(currentData); // now both heatmap instances have the same content
+   */
+  getData(): HeatmapData<DataCircle>;
 
-    /**
-     * Repaints the whole heatmap canvas.
-     */
-    repaint(): this;
+  /**
+   * Returns dataURL string.
+   *
+   * The returned value is the base64 encoded dataURL of the heatmap instance.
+   *
+   * @example
+   *
+   * heatmapInstance.getDataURL(); // data:image/png;base64...
+   * // ready for saving locally or on the server
+   */
+  getDataURL(): string;
+
+  /**
+   * Repaints the whole heatmap canvas.
+   */
+  repaint(): this;
 }
 
 export interface BaseHeatmapConfiguration<V extends string = 'value'> {
-    /**
-     * A background color string in form of hexcode, color name, or rgb(a)
-     */
-    backgroundColor?: string;
+  /**
+   * A background color string in form of hexcode, color name, or rgb(a)
+   */
+  backgroundColor?: string;
 
-    /**
-     * The blur factor that will be applied to all datapoints. The higher the
-     * blur factor is, the smoother the gradients will be
-     * Default value: 0.85
-     */
-    blur?: number;
+  /**
+   * The blur factor that will be applied to all datapoints. The higher the
+   * blur factor is, the smoother the gradients will be
+   * Default value: 0.85
+   */
+  blur?: number;
 
-    /**
-     * An object that represents the gradient.
-     * Syntax: {[key: number in range [0,1]]: color}
-     */
-    gradient?: { [key: string]: string };
+  /**
+   * An object that represents the gradient.
+   * Syntax: {[key: number in range [0,1]]: color}
+   */
+  gradient?: { [key: string]: string };
 
-    /**
-     * The maximal opacity the highest value in the heatmap will have. (will be
-     * overridden if opacity set)
-     * Default value: 0.6
-     */
-    maxOpacity?: number;
+  /**
+   * The maximal opacity the highest value in the heatmap will have. (will be
+   * overridden if opacity set)
+   * Default value: 0.6
+   */
+  maxOpacity?: number;
 
-    /**
-     * The minimum opacity the lowest value in the heatmap will have (will be
-     * overridden if opacity set)
-     */
-    minOpacity?: number;
+  /**
+   * The minimum opacity the lowest value in the heatmap will have (will be
+   * overridden if opacity set)
+   */
+  minOpacity?: number;
 
-    /**
-     * A global opacity for the whole heatmap. This overrides maxOpacity and
-     * minOpacity if set
-     * Default value: 0.6
-     */
-    opacity?: number;
+  /**
+   * A global opacity for the whole heatmap. This overrides maxOpacity and
+   * minOpacity if set
+   * Default value: 0.6
+   */
+  opacity?: number;
 
-    /**
-     * The radius each datapoint will have (if not specified on the datapoint
-     * itself)
-     */
-    radius?: number;
+  /**
+   * The radius each datapoint will have (if not specified on the datapoint
+   * itself)
+   */
+  radius?: number;
 
-    /**
-     * Scales the radius based on map zoom.
-     */
-    scaleRadius?: boolean;
+  /**
+   * Scales the radius based on map zoom.
+   */
+  scaleRadius?: boolean;
 
-    /**
-     * The property name of the value/weight in a datapoint
-     * Default value: 'value'
-     */
-    valueField?: V;
+  /**
+   * The property name of the value/weight in a datapoint
+   * Default value: 'value'
+   */
+  valueField?: V;
 
-    /**
-     * Pass a callback to receive extrema change updates. Useful for DOM
-     * legends.
-     */
-    onExtremaChange?: () => void;
+  /**
+   * Pass a callback to receive extrema change updates. Useful for DOM
+   * legends.
+   */
+  onExtremaChange?: () => void;
 
-    /**
-     * Indicate whether the heatmap should use a global extrema or a local
-     * extrema (the maximum and minimum of the currently displayed viewport)
-     */
-    useLocalExtrema?: boolean;
+  /**
+   * Indicate whether the heatmap should use a global extrema or a local
+   * extrema (the maximum and minimum of the currently displayed viewport)
+   */
+  useLocalExtrema?: boolean;
 }
 
 /**
  * Configuration object of a heatmap
  */
-export interface HeatmapConfiguration<
-    V extends string = 'value',
-    X extends string = 'x',
-    Y extends string = 'y',
-> extends BaseHeatmapConfiguration<V> {
-    /**
-     * A DOM node where the heatmap canvas should be appended (heatmap will adapt to
-     * the node's size)
-     */
-    container: HTMLElement;
+export interface HeatmapConfiguration<V extends string = 'value', X extends string = 'x', Y extends string = 'y'>
+  extends BaseHeatmapConfiguration<V> {
+  /**
+   * A DOM node where the heatmap canvas should be appended (heatmap will adapt to
+   * the node's size)
+   */
+  container: HTMLElement;
 
-    /**
-     * Override the css position style which will be added to the container element.
-     * Default value: 'relative' 
-     */
-    containerPosition?: CssPosition
+  /**
+   * Override the css position style which will be added to the container element.
+   * Default value: 'relative'
+   */
+  containerPosition?: CssPosition;
 
-    /**
-     * The property name of your x coordinate in a datapoint
-     * Default value: 'x'
-     */
-    xField?: X;
+  /**
+   * The property name of your x coordinate in a datapoint
+   * Default value: 'x'
+   */
+  xField?: X;
 
-    /**
-     * The property name of your y coordinate in a datapoint
-     * Default value: 'y'
-     */
-    yField?: Y;
+  /**
+   * The property name of your y coordinate in a datapoint
+   * Default value: 'y'
+   */
+  yField?: Y;
 }
 
 export interface HeatmapOverlayConfiguration<
-    V extends string = 'value',
-    TLat extends string = 'lat',
-    TLong extends string = 'lng',
+  V extends string = 'value',
+  TLat extends string = 'lat',
+  TLong extends string = 'lng'
 > extends BaseHeatmapConfiguration<V> {
-    /**
-     * The property name of your latitude coordinate in a datapoint
-     * Default value: 'x'
-     */
-    latField?: TLat;
+  /**
+   * The property name of your latitude coordinate in a datapoint
+   * Default value: 'x'
+   */
+  latField?: TLat;
 
-    /**
-     * The property name of your longitude coordinate in a datapoint
-     * Default value: 'y'
-     */
-    lngField?: TLong;
+  /**
+   * The property name of your longitude coordinate in a datapoint
+   * Default value: 'y'
+   */
+  lngField?: TLong;
 }
 
 /**
@@ -316,74 +336,80 @@ export interface HeatmapOverlayConfiguration<
  * overridden by providing alternative values for `xKey` and `yKey` in the
  * config object.
  */
-export type DataPoint<
-    V extends string = 'value',
-    X extends string = 'x',
-    Y extends string = 'y',
-> = Record<V | X | Y, number>;
+export type DataPoint<V extends string = 'value', X extends string = 'x', Y extends string = 'y'> = Record<
+  V | X | Y,
+  number
+>;
 
 /**
  * Type of data returned by `Heatmap#hello`, which ignores custom `xField`,
  * `yField` and `valueField`.
  */
 export interface DataCircle {
-    x: number;
-    y: number;
-    value: number;
-    radius: number;
+  x: number;
+  y: number;
+  value: number;
+  radius: number;
 }
 
 /**
  * An object representing the set of data points on a heatmap
  */
 export interface HeatmapData<T> {
-    /**
-     * An array of data points
-     */
-    data: ReadonlyArray<T>;
+  /**
+   * An array of data points
+   */
+  data: ReadonlyArray<T>;
 
-    /**
-     * Max value of the valueField
-     */
-    max: number;
+  /**
+   * Max value of the valueField
+   */
+  max: number;
 
-    /**
-     * Min value of the valueField
-     */
-    min: number;
+  /**
+   * Min value of the valueField
+   */
+  min: number;
 }
 
-export interface HeatmapSetData<T>{
+export interface HeatmapSetData<T> {
+  /**
+   * An array of data points
+   */
+  data: ReadonlyArray<T>;
 
-    /**
-     * An array of data points
-     */
-     data: ReadonlyArray<T>;
+  /**
+   * Calculate the min and max based on the provided data set
+   */
+  calculateExtrema: true;
 
-     /**
-      * Calculate the min and max based on the provided data set
-      */
-     calculateExtrema: true;
+  /**
+   * Upper bound used to draw the range of the gradient. If given
+   * this  value will only be used if it is higher than the value of all passed
+   * data point.
+   */
+  max?: number;
 
-     /**
-     * Upper bound used to draw the range of the gradient. If given
-     * this  value will only be used if it is higher than the value of all passed
-     * data point.
-     */
-     max?: number;
-
-    /**
-     * Lower bound used to draw the range of the gradient. If given
-     * this value will only be used if it is lower than the value of all passed
-     * data point.
-     */
-     min?: number;
-
-     
-
+  /**
+   * Lower bound used to draw the range of the gradient. If given
+   * this value will only be used if it is lower than the value of all passed
+   * data point.
+   */
+  min?: number;
 }
 
 /**
  * CSS Properties allowed for the position argument.
  */
-export type CssPosition =   "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "-webkit-sticky" | "absolute" | "fixed" | "relative" | "static" | "sticky";
+export type CssPosition =
+  | '-moz-initial'
+  | 'inherit'
+  | 'initial'
+  | 'revert'
+  | 'unset'
+  | '-webkit-sticky'
+  | 'absolute'
+  | 'fixed'
+  | 'relative'
+  | 'static'
+  | 'sticky';
